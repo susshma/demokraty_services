@@ -1,10 +1,9 @@
-var config = require('config'),
-var twilio = require('twilio'),
+var config = require('./config');
+var twilio = require('twilio');
 client = twilio(config.twilio.accountSid, config.twilio.authToken);
 
 var Firebase = require('firebase');
 var firebaseUrl = "https://demokraty.firebaseio.com/polllist";
-usersRef = new Firebase(firebaseUrl);
 
 var express = require('express'),
 bodyParser = require('body-parser'),
@@ -65,3 +64,29 @@ function in_object(object, value)
     }
     return false;
 }
+
+app.get('/', function (req, res) {
+
+    res.send("Wowzaaaaa");
+    var firebaseRef = new Firebase(firebaseUrl + "/2190");
+    firebaseRef.once("value", function(snapshot) {
+      console.log(snapshot.val());
+      if (snapshot.val() !== null){
+          var received_numbers = snapshot.val().received_numbers || {};
+          var response = "";
+          var id = "1";
+            var number_exists = in_object(received_numbers, "+14023019140");
+            if (number_exists) {
+                console.log("Dude you already voted");
+            } else {
+                firebaseRef.child('received_numbers').push("+14023019140")
+                firebaseRef.child('voteoptions').child(id).set({'votes': snapshot.val().voteoptions[id].votes + 1 })
+                console.log("Thank you for you vote");
+                response ="Dude you already voted";
+            }
+        } else {
+            response="You have an incorrect polling code";
+            console.log("You have an incorrect polling code")
+        }
+    });
+});
