@@ -51,7 +51,9 @@ app.post('/message', function (req, res) {
     });
 });
 
-var server = app.listen(3002, function() {
+app.set('port', (process.env.PORT || 3002));
+
+var server = app.listen(app.get('port'), function() {
   console.log('Listening on port %d', server.address().port);
 });
 
